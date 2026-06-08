@@ -26,10 +26,11 @@ export const handler = async (event, context) => {
       body: JSON.stringify({ ok: true, savedBy: user.email }),
     };
   } catch (err) {
-    console.error('[save-availability]', err.message);
+    console.error('[save-availability]', err.message, err.stack);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Falha ao salvar disponibilidade' }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
