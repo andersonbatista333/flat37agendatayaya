@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Tayayá — Praia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --ink:#1f5666;          /* deep teal text */
+    --ink-soft:#5a8794;     /* muted */
+    --aqua:#23a3c4;         /* primary */
+    --aqua-deep:#0e7c9b;
+    --teal:#2bb39a;         /* available */
+    --mint:#f6ecda;
+    --mint-line:#ecdbc2;
+    --sky1:#dff3fa;
+    --sky2:#a9e0ec;
+    --water1:#6fcbdc;
+    --water2:#2ea7c6;
+    --sand:#ffe4bc;
+    --sand-deep:#eaa75c;
+    --coral:#ef9a78;
+    --paper:#f8efe0;
+    --card:#fffdf9;
+    --shadow:0 12px 30px rgba(70,45,25,.20);
+    --shadow-sm:0 5px 16px rgba(70,45,25,.16);
+  }
+  html,body{background:#e6d7bd;}
+  body{font-family:'Poppins',sans-serif;display:flex;flex-direction:column;align-items:center;padding-bottom:104px;}
+  /* responsive stage: scales the fixed 1024×1536 canvas to fit phone width */
+  .stage{display:flex;justify-content:center;align-items:flex-start;width:100%;overflow:hidden;}
+  .scaler{width:1024px;transform-origin:top center;}
+  .flyer{
+    position:relative;width:1024px;height:1536px;flex:0 0 auto;overflow:hidden;
+    background:var(--paper);color:var(--ink);
+  }
+  /* faint photo backdrop behind the body */
+  .bodybg{position:absolute;left:0;right:0;top:258px;bottom:142px;z-index:0;overflow:hidden;}
+  .bodybg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 50%;
+    opacity:1;filter:saturate(1.08);}
+  .bodybg .wash{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(249,240,226,.12) 0%,rgba(250,242,228,.20) 50%,rgba(248,239,224,.30) 100%);}
+
+  /* ============ HEADER ============ */
+  .header{position:relative;height:258px;overflow:hidden;}
+  .header .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;display:block;}
+  .header .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,55,72,.60) 0%,rgba(6,55,72,.18) 36%,rgba(6,55,72,.20) 64%,rgba(9,72,92,.55) 100%);}
+  .header .hwave{position:absolute;left:0;bottom:-1px;width:100%;height:34px;z-index:2;display:block;}
+  .header .wm{position:absolute;left:0;right:0;top:46px;text-align:center;z-index:3;}
+  .wm .kicker{
+    font-size:15px;font-weight:600;letter-spacing:6px;color:#eaf7fb;
+    text-transform:uppercase;margin-bottom:4px;text-shadow:0 2px 8px rgba(4,40,55,.5);
+  }
+  .wm h1{
+    font-size:62px;font-weight:800;letter-spacing:.5px;line-height:.95;color:#ffffff;
+    text-shadow:0 3px 16px rgba(4,40,55,.55);
+  }
+  .wm .sub{
+    display:inline-block;margin-top:13px;font-weight:600;font-style:italic;
+    font-size:23px;color:var(--aqua-deep);background:#ffffff;
+    padding:7px 26px;border-radius:999px;box-shadow:0 6px 18px rgba(4,40,55,.25);
+    letter-spacing:.3px;
+  }
+
+  /* chips row under header */
+  .chips{
+    position:absolute;top:202px;left:0;right:0;z-index:4;
+    display:flex;gap:16px;justify-content:center;
+  }
+  .chip{
+    display:flex;align-items:center;gap:11px;background:var(--card);
+    border-radius:18px;padding:12px 20px;box-shadow:var(--shadow);
+    border:1px solid #e4f1f4;
+  }
+  .chip .ic{width:28px;height:28px;flex:0 0 auto;color:var(--aqua);}
+  .chip .tx{line-height:1.05;}
+  .chip .tx b{display:block;font-weight:700;font-size:18px;color:var(--ink);}
+  .chip .tx span{font-size:13px;font-weight:500;color:var(--ink-soft);letter-spacing:.2px;}
+
+  /* ============ BODY ============ */
+  .body{padding:92px 40px 0;position:relative;z-index:1;}
+
+  /* period + legend */
+  .period{
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    margin:0 auto 18px;width:max-content;max-width:100%;
+    background:linear-gradient(100deg,var(--aqua) 0%,var(--aqua-deep) 100%);
+    color:#fff;border-radius:999px;padding:14px 34px;box-shadow:0 10px 24px rgba(20,120,150,.28);
+  }
+  .period .ic{width:24px;height:24px;flex:0 0 auto;}
+  .period b{font-weight:500;font-size:15px;letter-spacing:3px;text-transform:uppercase;opacity:.85;}
+  .period .dt{font-weight:700;font-size:21px;letter-spacing:.3px;white-space:nowrap;}
+
+  .legend{display:flex;gap:26px;justify-content:center;align-items:center;width:max-content;max-width:100%;
+    margin:0 auto 24px;background:rgba(255,255,255,.82);padding:9px 22px;border-radius:999px;
+    box-shadow:var(--shadow-sm);}
+  .legend .it{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15px;color:var(--ink-soft);}
+  .legend .it svg{width:22px;height:22px;}
+
+  /* tables layout */
+  .grid{display:flex;gap:24px;align-items:flex-start;}
+  .col{display:flex;flex-direction:column;gap:24px;}
+  .col.left{flex:0 0 444px;}
+  .col.right{flex:1;}
+
+  .tbl{background:rgba(255,255,255,.73);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;border:1px solid rgba(255,255,255,.6);}
+  .tbl .cap{
+    display:flex;align-items:center;gap:12px;
+    background:linear-gradient(100deg,#2ab0cf,#0e7c9b);
+    color:#fff;padding:15px 22px;
+  }
+  .tbl .cap .dot{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .tbl .cap .dot svg{width:17px;height:17px;}
+  .tbl .cap h3{font-size:18px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+  .tbl .colhead{
+    display:flex;padding:9px 22px;font-size:12px;font-weight:700;letter-spacing:1.5px;
+    color:var(--ink-soft);text-transform:uppercase;background:rgba(247,238,222,.62);border-bottom:1px solid rgba(180,160,130,.30);
+  }
+  .tbl .colhead .c1{flex:1;}
+  .tbl .colhead .c2{flex:0 0 150px;}
+  .row{display:flex;align-items:center;padding:0 22px;border-bottom:1px solid rgba(150,135,110,.20);}
+  .row:last-child{border-bottom:none;}
+  .row:nth-child(even){background:rgba(255,255,255,.28);}
+  .row .c1{flex:1;font-weight:600;color:var(--ink);}
+  .row .c2{flex:0 0 150px;display:flex;align-items:center;gap:9px;}
+  .row .c2 .chk{width:23px;height:23px;flex:0 0 auto;}
+  .row .c2 .st{font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.3px;}
+  .row.off{background:rgba(90,80,60,.06);}
+  .row.off .c1{color:#6f8389;}
+  .row.off .c2 .st{color:#7e9298;}
+  .tag-off{color:#8aa0a8 !important;background:#eef3f5 !important;}
+  .tag{
+    margin-left:8px;font-size:10px;font-weight:700;letter-spacing:.4px;color:#bf7a36;
+    background:var(--sand);border-radius:6px;padding:3px 7px;white-space:nowrap;text-transform:uppercase;
+  }
+  /* row sizes */
+  .col.left .row{height:44px;font-size:17px;}
+  .col.left .row .st{font-size:14.5px;}
+  .col.right .row{height:33px;font-size:15px;}
+  .col.right .row .st{font-size:12.5px;}
+  .col.right .colhead .c2,.col.right .row .c2{flex:0 0 128px;}
+  .col.right .tag{font-size:9px;padding:2px 6px;}
+
+  /* ============ FEATURES ============ */
+  .features{
+    background:rgba(247,238,222,.70);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:22px;padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;
+  }
+  .feat{display:flex;align-items:center;gap:13px;}
+  .feat .fi{width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:rgba(255,255,255,.85);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+  .feat .fi svg{width:24px;height:24px;color:var(--aqua);}
+  .feat .ft{font-weight:600;font-size:15.5px;line-height:1.12;color:var(--ink);}
+
+  /* ============ FOOTER ============ */
+  .footer{position:absolute;left:0;right:0;top:1394px;height:142px;
+    background:linear-gradient(110deg,#0e7c9b,#23a3c4);color:#fff;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:18px;}
+  .footer .wave{position:absolute;top:-1px;left:0;width:100%;height:30px;}
+  .footer .inner{display:flex;align-items:center;justify-content:center;gap:22px;padding:0 40px;}
+  .wapp{width:56px;height:56px;flex:0 0 auto;}
+  .footer .ftxt{line-height:1.12;}
+  .footer .ftxt .ph{font-size:30px;font-weight:800;letter-spacing:.5px;margin-bottom:1px;}
+  .footer .ftxt .big{font-size:20px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;}
+  .footer .ftxt .sm{font-size:14px;font-weight:500;font-style:italic;opacity:.92;margin-top:2px;}
+  .footer .disc{margin-top:10px;text-align:center;font-size:10.5px;letter-spacing:1.5px;opacity:.8;text-transform:uppercase;}
+
+  /* ===== edit toolbar (barra inferior) ===== */
+  .toolbar{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:50;
+    display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.96);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    padding:9px 12px;border-radius:22px;box-shadow:0 10px 30px rgba(20,80,100,.28);
+    border:1px solid #e0eef1;font-family:'Poppins',sans-serif;flex-wrap:wrap;justify-content:center;max-width:96vw;}
+  .tbtn{font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;cursor:pointer;
+    border:none;border-radius:999px;padding:10px 18px;background:linear-gradient(100deg,#23a3c4,#0e7c9b);
+    color:#fff;box-shadow:0 4px 12px rgba(20,120,150,.28);transition:transform .12s ease,filter .12s ease;white-space:nowrap;}
+  .tbtn:hover{filter:brightness(1.05);} .tbtn:active{transform:scale(.97);}
+  .tbtn.on{background:linear-gradient(100deg,#2bb39a,#159b82);}
+  .tbtn.ghost{background:#fff;color:#0e7c9b;border:1.5px solid #bfe3ea;box-shadow:none;}
+  .tbtn.dl{background:linear-gradient(100deg,#f0a64e,#e07d2f);box-shadow:0 4px 12px rgba(200,120,40,.30);}
+  .tbtn.wa{background:linear-gradient(100deg,#3bce6b,#1fae58);box-shadow:0 4px 12px rgba(30,160,80,.32);}
+  .toolbar .hint{display:flex;align-items:center;gap:9px;font-size:13.5px;color:#3a6c7a;font-weight:500;padding:0 6px;}
+  .toolbar .hint b{color:#0e7c9b;font-weight:700;}
+  .dotpulse{width:9px;height:9px;border-radius:50%;background:#2bb39a;box-shadow:0 0 0 0 rgba(43,179,154,.55);animation:dp 1.6s infinite;}
+  @keyframes dp{0%{box-shadow:0 0 0 0 rgba(43,179,154,.5);}70%{box-shadow:0 0 0 9px rgba(43,179,154,0);}100%{box-shadow:0 0 0 0 rgba(43,179,154,0);}}
+
+  /* clickable rows only while editing */
+  body.editing .row[data-key]{cursor:pointer;}
+  body.editing .row[data-key]:hover{outline:2px solid rgba(35,163,196,.55);outline-offset:-2px;border-radius:8px;background:rgba(255,255,255,.5);}
+  body.editing .row[data-key]::after{content:"⇄";margin-left:auto;font-size:0;}
+  @media print{.toolbar{display:none !important;}}
+  /* compact controls on phones */
+  @media (max-width:560px){
+    .toolbar{gap:7px;padding:8px 9px;bottom:8px;border-radius:18px;}
+    .tbtn{font-size:13px;padding:9px 13px;}
+    .toolbar .hint{font-size:11.5px;width:100%;justify-content:center;order:5;}
+    body{padding-bottom:118px;}
+  }
+</style>
+</head>
+<body>
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd2e1"/><stop offset="1" stop-color="#2ea7c6"/></linearGradient></defs>
+      <rect width="100" height="100" fill="url(#tg)"/>
+      <circle cx="74" cy="28" r="11" fill="#fff3d2"/>
+      <path d="M0 64 Q25 54 50 62 T100 64 V100 H0 Z" fill="#0e7c9b"/>
+      <rect x="30" y="40" width="40" height="30" rx="5" fill="#fff" opacity="0.92"/>
+      <path d="M37 49h26M37 56h26M37 63h18" stroke="#23a3c4" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+  </template>
+  <!-- edit toolbar (não aparece na imagem exportada) -->
+  <div class="toolbar" id="toolbar">
+    <button class="tbtn" id="editBtn">✎ Editar disponibilidade</button>
+    <button class="tbtn ghost" id="resetBtn" style="display:none;">↺ Reiniciar</button>
+    <button class="tbtn dl" id="dlBtn">⬇ Baixar imagem</button>
+    <button class="tbtn wa" id="waBtn">💬 Compartilhar no WhatsApp</button>
+    <div class="hint" id="editHint" style="display:none;"><span class="dotpulse"></span>Toque em uma data para alternar <b>Disponível</b> ↔ <b>Indisponível</b></div>
+  </div>
+  <div class="stage">
+    <div class="scaler">
+      <div class="flyer" data-screen-label="Flyer Tayayá">
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+      <img class="photo" src="uploads/pasted-1780785772634-0.png" alt="Tayayá Aqua Resort">
+      <div class="scrim"></div>
+      <svg class="hwave" viewBox="0 0 1024 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 20 Q170 -6 340 16 T680 16 T1024 18 V34 H0 Z" fill="#f8efe0"/></svg>
+      <div class="wm">
+        <div class="kicker">Tayayá Aqua Resort</div>
+        <h1>AGENDA TAYAYÁ</h1>
+        <div class="sub">Datas Disponíveis</div>
+      </div>
+    </div>
+
+    <!-- faint resort backdrop behind body -->
+    <div class="bodybg"><img src="uploads/tay1.jpg" alt=""><div class="wash"></div></div>
+
+    <!-- chips -->
+    <div class="chips">
+      <div class="chip">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/><path d="M9 19v-5h6v5"/></svg>
+        <div class="tx"><b>Chalé de 6 pessoas</b><span>Espaço para toda a família</span></div>
+      </div>
+      <div class="chip">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+        <div class="tx"><b>Localização aconchegante</b><span>À beira da Represa de Chavantes</span></div>
+      </div>
+    </div>
+
+    <!-- ===== BODY ===== -->
+    <div class="body">
+      <div class="period">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+        <div><span style="display:block;font-weight:500;font-size:13px;letter-spacing:3px;text-transform:uppercase;opacity:.85;">Período</span></div>
+        <div class="dt">08 de Junho a 31 de Julho / 2026</div>
+      </div>
+
+      <div class="legend">
+        <div class="it"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#2bb39a"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Disponível</div>
+        <div class="it"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#e0e9ec"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#9bb3bb" stroke-width="2.4" stroke-linecap="round"/></svg>Indisponível</div>
+      </div>
+
+      <div class="grid">
+        <div class="col left" id="colLeft">
+          <div class="features">
+            <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17c2 0 2 1.4 4 1.4S10 17 12 17s2 1.4 4 1.4S18 17 22 17"/><path d="M2 21c2 0 2 1.4 4 1.4S10 21 12 21"/><path d="M7 14V5.5A2.5 2.5 0 0 1 12 5"/><path d="M7 9h4"/></svg></div><div class="ft">Piscinas<br>e lazer</div></div>
+            <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21c0-7 4-12 14-13C18 16 13 21 5 21z"/><path d="M5 21c1.5-5 4-8 8-10"/></svg></div><div class="ft">Conforto<br>e natureza</div></div>
+            <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M2.5 20c0-3.3 2.5-5.5 5.5-5.5S13.5 16.7 13.5 20"/><path d="M14.5 20c0-2.4 1.4-4.3 3.6-4.3 2 0 3.4 1.7 3.4 4"/></svg></div><div class="ft">Perfeito para<br>famílias e grupos</div></div>
+            <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></div><div class="ft">Localização<br>aconchegante</div></div>
+          </div>
+        </div>
+        <div class="col right" id="colRight"></div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+      <svg class="wave" viewBox="0 0 1024 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 18 Q170 -8 340 14 T680 14 T1024 16 V0 H0 Z" fill="#f8efe0"/></svg>
+      <div class="inner">
+        <svg class="wapp" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M16 6.5c-5.2 0-9.5 4.3-9.5 9.5 0 1.7.5 3.3 1.3 4.7L6.5 25.5l5-1.3c1.3.7 2.9 1.1 4.5 1.1 5.2 0 9.5-4.3 9.5-9.5S21.2 6.5 16 6.5z" fill="#23a3c4"/><path d="M21 18.4c-.3-.15-1.6-.8-1.85-.9-.25-.1-.43-.14-.6.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.15-1.33-.8-.71-1.33-1.58-1.49-1.85-.16-.27 0-.42.12-.55.12-.12.27-.32.4-.48.13-.16.18-.27.27-.46.09-.18.04-.34-.02-.48-.07-.14-.6-1.45-.83-1.98-.22-.52-.44-.45-.6-.46h-.52c-.18 0-.46.07-.7.34-.25.27-.95.93-.95 2.26s.97 2.62 1.1 2.8c.14.18 1.9 2.9 4.6 4.06 2.7 1.17 2.7.78 3.2.73.48-.04 1.56-.64 1.78-1.25.22-.62.22-1.14.16-1.25-.07-.11-.25-.18-.52-.32z" fill="#fff"/></svg>
+        <div class="ftxt">
+          <div class="ph">(11) 99559-3778</div>
+          <div class="big">Fale conosco no WhatsApp!</div>
+          <div class="sm">Temos flexibilidade nas datas. Chame no privado.</div>
+        </div>
+      </div>
+      <div class="disc">Valores sujeitos a alteração sem aviso prévio</div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <script>
+    const segQui=[
+      ['01 a 04/06',null,false],['04 a 07/06','Corpus Christi',false],['08 a 11/06'],['11 a 14/06'],
+      ['15 a 18/06'],['18 a 21/06'],['22 a 25/06'],['25 a 28/06'],
+      ['29/06 a 02/07'],['06 a 09/07'],['13 a 16/07'],['20 a 23/07'],['27 a 30/07']
+    ];
+    const quiDom=[
+      ['04 a 07/06','Corpus Christi',false],['11 a 14/06'],['18 a 21/06'],['25 a 28/06'],
+      ['02 a 05/07','FESCAFE',false],['09 a 12/07'],['16 a 19/07'],['23 a 26/07'],['30/07 a 02/08']
+    ];
+    const sexDom=[
+      ['05 a 07/06','Corpus Christi',false],['12 a 14/06'],['19 a 21/06'],['26 a 28/06'],
+      ['03 a 05/07'],['10 a 12/07'],['17 a 19/07'],['24 a 26/07'],['31/07 a 02/08']
+    ];
+    const chk='<svg class="chk" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#2bb39a"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const xic='<svg class="chk" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#dfe7ea"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#9bb3bb" stroke-width="2.4" stroke-linecap="round"/></svg>';
+    function calIcon(){return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>';}
+    const STORE='tayaya_flat37_status_v1';
+    function loadOverrides(){ try{return JSON.parse(localStorage.getItem(STORE))||{};}catch(e){return {};} }
+    function saveOverrides(o){ try{localStorage.setItem(STORE,JSON.stringify(o));}catch(e){} }
+    let overrides=loadOverrides();
+
+    function rowMarkup(key, d, tag, off){
+      return `<div class="row${off?' off':''}" data-key="${key}" role="button" tabindex="0" aria-label="${d}: ${off?'Indisponível':'Disponível'}. Toque para alternar.">
+        <div class="c1">${d}</div>
+        <div class="c2">${off?xic:chk}<span class="st">${off?'Indisponível':'Disponível'}</span>${tag?`<span class="tag${off?' tag-off':''}">★ ${tag}</span>`:''}</div>
+      </div>`;
+    }
+    function table(title, data, tid){
+      let rows='';
+      data.forEach((item,i)=>{
+        const [d,tag,avail]=item;
+        const key=tid+':'+i;
+        const base = avail===false;
+        const off = (key in overrides) ? overrides[key] : base;
+        rows+=rowMarkup(key,d,tag,off);
+      });
+      return `<div class="tbl">
+        <div class="cap"><div class="dot">${calIcon()}</div><h3>${title}</h3></div>
+        <div class="colhead"><div class="c1">Período</div><div class="c2">Status</div></div>
+        ${rows}
+      </div>`;
+    }
+    const META={
+      'seg':{data:segQui}, 'qui':{data:quiDom}, 'sex':{data:sexDom}
+    };
+    document.getElementById('colLeft').insertAdjacentHTML('afterbegin', table('Segunda a Quinta',segQui,'seg'));
+    document.getElementById('colRight').innerHTML=table('Quinta a Domingo',quiDom,'qui')+table('Sexta a Domingo',sexDom,'sex');
+
+    // ----- toggle behaviour -----
+    function tagFor(key){
+      const [tid,i]=key.split(':'); const item=META[tid].data[+i]; return item[1]||null;
+    }
+    function applyRow(row, off){
+      const tag=tagFor(row.dataset.key);
+      row.classList.toggle('off', off);
+      row.querySelector('.c2').innerHTML=`${off?xic:chk}<span class="st">${off?'Indisponível':'Disponível'}</span>${tag?`<span class="tag${off?' tag-off':''}">★ ${tag}</span>`:''}`;
+      row.setAttribute('aria-label', `${row.querySelector('.c1').textContent}: ${off?'Indisponível':'Disponível'}. Toque para alternar.`);
+    }
+    function toggle(row){
+      const key=row.dataset.key;
+      const off=!row.classList.contains('off');
+      overrides[key]=off; saveOverrides(overrides);
+      applyRow(row, off);
+    }
+    document.querySelectorAll('.row[data-key]').forEach(row=>{
+      row.addEventListener('click', ()=>{ if(document.body.classList.contains('editing')) toggle(row); });
+      row.addEventListener('keydown', e=>{ if((e.key==='Enter'||e.key===' ')&&document.body.classList.contains('editing')){e.preventDefault();toggle(row);} });
+    });
+
+    // ----- edit toolbar -----
+    const editBtn=document.getElementById('editBtn');
+    const resetBtn=document.getElementById('resetBtn');
+    const hint=document.getElementById('editHint');
+    function setEditing(on){
+      document.body.classList.toggle('editing', on);
+      editBtn.textContent = on ? '✓ Concluir edição' : '✎ Editar disponibilidade';
+      editBtn.classList.toggle('on', on);
+      hint.style.display = on ? 'flex' : 'none';
+      resetBtn.style.display = on ? 'inline-flex' : 'none';
+    }
+    editBtn.addEventListener('click', ()=> setEditing(!document.body.classList.contains('editing')));
+    resetBtn.addEventListener('click', ()=>{
+      overrides={}; saveOverrides(overrides);
+      document.querySelectorAll('.row[data-key]').forEach(row=>{
+        const [tid,i]=row.dataset.key.split(':');
+        const base=META[tid].data[+i][2]===false;
+        applyRow(row, base);
+      });
+    });
+
+    // ----- shared PNG generation -----
+    async function genFlyerPng(){
+      if(!window.htmlToImage) throw new Error('lib');
+      const wasEditing=document.body.classList.contains('editing');
+      if(wasEditing) setEditing(false);
+      const toolbar=document.getElementById('toolbar');
+      toolbar.style.visibility='hidden';
+      try{
+        await (document.fonts && document.fonts.ready);
+        return await window.htmlToImage.toPng(document.querySelector('.flyer'),{pixelRatio:2,width:1024,height:1536,cacheBust:true,backgroundColor:'#f8efe0'});
+      }finally{
+        toolbar.style.visibility='';
+        if(wasEditing) setEditing(true);
+      }
+    }
+    function dataUrlToFile(dataUrl, filename){
+      const arr=dataUrl.split(','), mime=arr[0].match(/:(.*?);/)[1];
+      const bstr=atob(arr[1]); let n=bstr.length; const u8=new Uint8Array(n);
+      while(n--) u8[n]=bstr.charCodeAt(n);
+      return new File([u8], filename, {type:mime});
+    }
+
+    // ----- download as PNG -----
+    const dlBtn=document.getElementById('dlBtn');
+    dlBtn.addEventListener('click', async ()=>{
+      if(!window.htmlToImage){ alert('Não foi possível carregar o gerador de imagem. Verifique sua conexão com a internet e tente novamente.'); return; }
+      const prev=dlBtn.textContent; dlBtn.textContent='⏳ Gerando...'; dlBtn.disabled=true;
+      try{
+        const dataUrl=await genFlyerPng();
+        const a=document.createElement('a');
+        a.download='Agenda-Tayaya-Flat37.png'; a.href=dataUrl; a.click();
+      }catch(err){ console.error(err); alert('Ocorreu um erro ao gerar a imagem. Tente novamente.'); }
+      finally{ dlBtn.textContent=prev; dlBtn.disabled=false; }
+    });
+
+    // ----- share on WhatsApp -----
+    const waBtn=document.getElementById('waBtn');
+    const SHARE_MSG='Confira a agenda de disponibilidade do Chalé Flat 37 no Tayayá Aqua Resort! 🏖️ Reservas pelo WhatsApp (11) 99559-3778.';
+    waBtn.addEventListener('click', async ()=>{
+      if(!window.htmlToImage){ alert('Não foi possível carregar o gerador de imagem. Verifique sua conexão e tente novamente.'); return; }
+      const prev=waBtn.textContent; waBtn.textContent='⏳ Preparando...'; waBtn.disabled=true;
+      try{
+        const dataUrl=await genFlyerPng();
+        const file=dataUrlToFile(dataUrl,'Agenda-Tayaya-Flat37.png');
+        // Mobile: share sheet with the image attached (user picks WhatsApp)
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file], text:SHARE_MSG, title:'Agenda Tayayá — Flat 37'});
+        }else{
+          // Desktop fallback: baixa a imagem + abre o WhatsApp Web com a mensagem
+          const a=document.createElement('a'); a.download='Agenda-Tayaya-Flat37.png'; a.href=dataUrl; a.click();
+          window.open('https://wa.me/?text='+encodeURIComponent(SHARE_MSG),'_blank');
+          setTimeout(()=>alert('A imagem foi baixada. No WhatsApp Web que abriu, escolha o contato e anexe a imagem baixada para enviar com o texto.'), 300);
+        }
+      }catch(err){
+        if(err && err.name==='AbortError'){ /* usuário cancelou */ }
+        else { console.error(err); alert('Não foi possível compartilhar. A imagem pode ter sido baixada para você enviar manualmente.'); }
+      }finally{ waBtn.textContent=prev; waBtn.disabled=false; }
+    });
+
+    // ----- responsive scaling: fit the 1024px canvas to the screen width -----
+    (function(){
+      const scaler=document.querySelector('.scaler');
+      const W=1024, H=1536;
+      function fit(){
+        const avail=document.documentElement.clientWidth;
+        const scale=Math.min(1, avail/W);
+        scaler.style.transform = scale<1 ? 'scale('+scale+')' : 'none';
+        // collapse the empty space left by the transform so the page height matches
+        scaler.style.height = (H*scale)+'px';
+      }
+      fit();
+      window.addEventListener('resize', fit);
+      window.addEventListener('orientationchange', ()=>setTimeout(fit,150));
+    })();
+  </script>
+  <style id="__om-edit-overrides"></style>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Tayayá — Flat 37 (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #1c130b; }
+  body { display: flex; justify-content: center; }
+  .flyer {
+    position: relative;
+    width: 1024px;
+    height: 1536px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    font-family: 'Oswald', sans-serif;
+  }
+  .flyer > img.base {
+    position: absolute;
+    inset: 0;
+    width: 1024px;
+    height: 1536px;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .patch { position: absolute; overflow: hidden; }
+
+  /* ---- Location text: ACONCHEGANTE! ---- */
+  #coverLoc {
+    left: 821px; top: 243px; width: 197px; height: 77px;
+    background: #0a0a07;
+    display: flex; align-items: center;
+  }
+  #coverLoc .loc {
+    font-family: 'Oswald', sans-serif; font-weight: 600; color: #fdf6e8;
+    font-size: 26px; line-height: 1.05; text-transform: uppercase; letter-spacing: .1px;
+    white-space: nowrap;
+    text-shadow: 0 2px 4px rgba(0,0,0,.8); padding-left: 6px;
+  }
+
+  /* ---- Period banner: 08 DE JUNHO ... ---- */
+  #coverPer {
+    left: 134px; top: 459px; width: 855px; height: 63px;
+    background-image: url('tiles2/plank.png');
+    background-size: 855px 63px;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 5px, #000 calc(100% - 5px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, #000 5px, #000 calc(100% - 5px), transparent 100%);
+  }
+  #coverPer .per {
+    font-family: 'Fjalla One', sans-serif; font-weight: 400;
+    color: #f7e9d0; font-size: 41px; line-height: 1; text-transform: uppercase;
+    letter-spacing: .5px; white-space: nowrap;
+    text-shadow: 0 2px 3px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.9);
+  }
+
+  /* ---- Feature label: LOCALIZAÇÃO ACONCHEGANTE ---- */
+  #coverFeat {
+    left: 336px; top: 1321px; width: 136px; height: 27px;
+    background-image: url('tiles3/green.png');
+    background-size: 136px 27px;
+    display: flex; align-items: center;
+  }
+  #coverFeat .feat {
+    font-family: 'Oswald', sans-serif; font-weight: 500; color: #f1e9dc;
+    font-size: 19px; line-height: 1; text-transform: uppercase; letter-spacing: .1px;
+    white-space: nowrap; padding-left: 5px;
+  }
+</style>
+</head>
+<body>
+  <div class="flyer">
+    <img class="base" src="uploads/Flyer Tayaya Flat 37_v1.png" alt="Agenda Tayayá">
+
+    <!-- ACONCHEGANTE! -->
+    <div class="patch" id="coverLoc">
+      <div class="loc">Aconchegante!</div>
+    </div>
+
+    <!-- Período: 08 de junho a 31 de julho / 2026 -->
+    <div class="patch" id="coverPer">
+      <div class="per">Período: 08 de Junho a 31 de Julho / 2026</div>
+    </div>
+
+    <!-- Localização aconchegante -->
+    <div class="patch" id="coverFeat">
+      <div class="feat">Aconchegante</div>
+    </div>
+  </div>
+</body>
+</html>
