@@ -2,7 +2,11 @@ import { getStore } from '@netlify/blobs';
 
 export const handler = async () => {
   try {
-    const store = getStore('tayaya-availability');
+    const store = getStore({
+      name: 'tayaya-availability',
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_TOKEN,
+    });
     const data = await store.get('state', { type: 'json' });
     return {
       statusCode: 200,
@@ -13,7 +17,7 @@ export const handler = async () => {
     console.error('[get-availability]', err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Falha ao buscar disponibilidade' }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };

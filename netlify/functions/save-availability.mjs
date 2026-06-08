@@ -5,8 +5,7 @@ export const handler = async (event, context) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // Netlify Identity: verifica JWT automaticamente e popula context.clientContext.user
-  const user = context.clientContext && context.clientContext.user;
+  const user = context.clientContext?.user;
   if (!user) {
     return {
       statusCode: 401,
@@ -17,7 +16,11 @@ export const handler = async (event, context) => {
 
   try {
     const data = JSON.parse(event.body);
-    const store = getStore('tayaya-availability');
+    const store = getStore({
+      name: 'tayaya-availability',
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_TOKEN,
+    });
     await store.set('state', JSON.stringify(data));
     console.log(`[save-availability] Salvo por: ${user.email}`);
     return {
